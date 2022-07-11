@@ -1,0 +1,112 @@
+#!/bin/bash
+
+
+STARL() {
+clear
+/bin/echo -e '\n\n' "\e[1;36mRUNNING IN CHROOT ENVIRONMENT...\e[0m"
+echo -e '\n'                                        
+read -p "Enter Hostname : " HOSTNAME 
+echo -e '\n'                                        
+read -p "Enter Username: " USERNAME
+echo -e '\n'                                        
+read -p "Swapfile size (eg: 2,4,8) : " SWPFILE
+
+clear
+/bin/echo -e '\n\n' "\e[1;32mRE-ENTER THE FOLLOWING PARTITIONS FOR CHROOT ENVIRONMENT!...
+\e[0m"
+lsblk
+echo -e '\n'                                        
+read -p "RE-Enter EFI partition for creating fstab  (eg: sda1,vda1,nvme01) : " GEN_EFI
+echo -e '\n'                                        
+read -p "RE-Enter the Root partition (eg: sda2,vda2,nvme02) : " RTVLME
+echo -e '\n'                                        
+read -p "RE-Enter the Home partition (eg: sda3,vda3,nvme03) : " HOMEPRT
+}
+
+
+AUTOCON(){
+/bin/echo -e '\n\n' "\e[1;32mGENERATING SWAPFILE.........\e[0m"
+echo -e '\n'                                        
+
+dd if=/dev/zero of=/swapfile bs=1G count=${SWPFILE} status=progress
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+
+xbps-install -Syu -u xbps && xbps-install -Syu
+xbps-install -Syu base-system vim git terminus-font zsh zsh-syntax-highlighting zsh-autosuggestions
+xbps-remove base-voidstrap
+
+
+/bin/echo -e '\n\n' "\e[1;32mINSTALLING CPU UCODE.........\e[0m"
+echo -e '\n' 
+model=$(lscpu | grep 'Model name')
+case "$model" in
+    *Intel*) xbps-install -Syu void-repo-nonfree && xbps-install -Syu intel-ucode ;;
+    *AMD*) xbps-install -Syu linux-firmware-amd ;;  
+esac
+
+echo $HOSTNAME > /etc/hostname
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+echo "en_US.UTF-8 UTF-8" >> /etc/default/libc-locales
+cho 'FONT="ter-g18b"' >> /etc/rc.conf
+echo 'FONT_MAP="8859-2"' >> /etc/rc.conf
+xbps-reconfigure -f glibc-locales
+
+
+
+UUID_EFI=$(blkid -o value -s UUID /dev/$GEN_EFI)
+UUID_ROOT=$(blkid -o value -s UUID /dev/$RTVLME)
+UUID_HOME=$(blkid -o value -s UUID /dev/$HOMEPRT)
+
+echo "UUID=${UUID_EFI}	/boot/efi	vfat	defaults	  0       0" >> /etc/fstab	      
+echo "UUID=${UUID_ROOT}  /     ext4     defaults             0       0" >> /etc/fstab
+echo "UUID=${UUID_HOME}  /home     ext4     defaults             0       0" >> /etc/fstab
+echo  "/swapfile	none	swap	defaults	0 0" >> /etc/fstab
+}
+
+
+
+
+FIN_ACT(){
+/bin/echo -e '\n\n' "\e[1;33mEnter root password\e[0m"
+echo -e '\n'
+passwd
+
+useradd --create-home --groups wheel,users,audio,video,storage,cdrom,input,network --shell /bin/zsh $USERNAME
+/bin/echo -e '\n\n' "\e[1;33mEnter user password\e[0m"
+echo -e '\n'
+passwd $USERNAME
+
+echo "root ALL=(ALL) ALL 
+%wheel ALL=(ALL) ALL 
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/halt, /usr/bin/poweroff, /usr/bin/reboot, \
+	/usr/bin/shutdown, /usr/bin/zzz, /usr/bin/ZZZ
+@includedir /etc/sudoers.d" > /etc/sudoers
+
+
+xbps-install grub-x86_64-efi
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Void"
+xbps-reconfigure -fa
+exit
+}
+
+
+
+#call_func
+
+STARL
+AUTOCON
+FIN_ACT
+
+
+
+
+
+
+
+
+
+
+
+
