@@ -34,8 +34,8 @@ mkswap /swapfile
 swapon /swapfile
 
 xbps-install -Syu -u xbps && xbps-install -Syu
-xbps-install -Syu base-system vim git terminus-font zsh zsh-syntax-highlighting zsh-autosuggestions
-xbps-remove base-voidstrap
+xbps-install -Syu base-system vim git terminus-font zsh zsh-syntax-highlighting zsh-autosuggestions NetworkManager
+xbps-remove base-voidstrap -y
 
 
 /bin/echo -e '\n\n' "\e[1;32mINSTALLING CPU UCODE.........\e[0m"
@@ -49,7 +49,7 @@ esac
 echo $HOSTNAME > /etc/hostname
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "en_US.UTF-8 UTF-8" >> /etc/default/libc-locales
-cho 'FONT="ter-g18b"' >> /etc/rc.conf
+echo 'FONT="ter-g18b"' >> /etc/rc.conf
 echo 'FONT_MAP="8859-2"' >> /etc/rc.conf
 xbps-reconfigure -f glibc-locales
 
@@ -85,9 +85,10 @@ echo "root ALL=(ALL) ALL
 @includedir /etc/sudoers.d" > /etc/sudoers
 
 
-xbps-install grub-x86_64-efi
+xbps-install grub-x86_64-efi -y
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Void"
 xbps-reconfigure -fa
+ln -s /etc/sv/NetworkManager /etc/runit/runsvdir/default/
 exit
 }
 
