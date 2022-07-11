@@ -1,0 +1,86 @@
+#!/bin/bash
+
+PART_INT() {
+ping -c 1 voidlinux.org
+/bin/echo -e '\n\n' "\e[1;36mSTARTING SCRIPT...\e[0m"
+sleep 1
+clear
+/bin/echo -e '\n\n' "\e[1;36mENTER THE FOLLOWING PARAMETERS...\e[0m"
+
+echo -e '\n'                                        
+lsblk
+echo -e '\n'                                        
+read -p "Drive name (eg: sda,vda,nvme0) : " DRIVE
+cfdisk /dev/$DRIVE 
+clear
+echo -e '\n'                                        
+lsblk /dev/$DRIVE 
+echo -e '\n'                                        
+read -p "EFI partition : " EFI
+echo -e '\n'                                        
+read -p "Root partition : " ROOT
+echo -e '\n'                                        
+read -p "Home partition : " HOME
+}
+
+FRT_MAIN() {
+clear && /bin/echo -e '\n\n' "\e[1;32mFormating Drives...\e[0m"
+echo -e '\n'                                        
+mkfs.fat -F32 /dev/$EFI 
+mkfs.ext4 /dev/$ROOT
+mkfs.ext4 /dev/$HOME
+mount /dev/$ROOT /mnt
+mkdir -p /mnt/boot/efi 
+mkdir /mnt/home
+mount /dev/$EFI /mnt/boot/efi
+mount /dev/$HOME /mnt/home
+}
+
+
+SYS_GRD() {
+curl https://alpha.de.repo.voidlinux.org/live/current/void-x86_64-ROOTFS-20210930.tar.xz > void-x86_64-ROOTFS-20210930.tar.xz 
+tar xvf void-x86_64-ROOTFS-20210930.tar.xz -C /mnt
+mount --rbind /sys /mnt/sys && mount --make-rslave /mnt/sys
+mount --rbind /dev /mnt/dev && mount --make-rslave /mnt/dev
+mount --rbind /proc /mnt/proc && mount --make-rslave /mnt/proc
+cp /etc/resolv.conf /mnt/etc/
+}
+
+
+CHR_CRY() {
+cp chrootbuild /mnt/chrootbuild 
+chmod +x /mnt/chrootbuild 
+chroot /mnt bash chrootbuild && rm /mnt/chrootbuild
+}
+
+CLOSG(){
+umount -R /mnt
+clear 
+/bin/echo -e '\n\n' "\e[1;32mINSTALLATION COMPLETED!...\e[0m"
+sleep 1
+/bin/echo -e '\n\n' "\e[1;32mREBOOTING IN ..3\e[0m"
+sleep 1
+/bin/echo -e '\n\n' "\e[1;32mREBOOTING IN ..2\e[0m"
+sleep 1
+/bin/echo -e '\n\n' "\e[1;32mREBOOTING IN ..1\e[0m"
+sleep 1
+/bin/echo -e '\n\n' "\e[1;31mREBOOTING NOW......
+\e[0m"
+reboot
+}
+
+
+#starting point
+PART_INT
+FRT_MAIN
+SYS_GRD
+CHR_CRY
+CLOSG
+
+
+
+
+
+
+
+
