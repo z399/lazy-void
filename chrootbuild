@@ -16,11 +16,11 @@ clear
 \e[0m"
 lsblk
 echo -e '\n'                                        
-read -p "RE-Enter EFI partition for creating fstab  (eg: sda1,vda1,nvme01) : " GEN_EFI
+read -p "RE-Enter EFI partition for creating fstab  (eg: sda1,vda1,nvme0n1p1) : " GEN_EFI
 echo -e '\n'                                        
-read -p "RE-Enter the Root partition (eg: sda2,vda2,nvme02) : " RTVLME
+read -p "RE-Enter the Root partition (eg: sda2,vda2, nvme0n1p2) : " RTVLME
 echo -e '\n'                                        
-read -p "RE-Enter the Home partition (eg: sda3,vda3,nvme03) : " HOMEPRT
+read -p "RE-Enter the Home partition (eg: sda3,vda3, nvme0n1p3) : " HOMEPRT
 }
 
 
