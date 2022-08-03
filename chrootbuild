@@ -33,8 +33,11 @@ chmod 600 /swapfile
 mkswap /swapfile
 swapon /swapfile
 
+mkdir -p /etc/xbps.d
+touch /etc/xbps.d/repo.conf
+echo repository=https://mirrors.dotsrc.org/voidlinux/current > /etc/xbps.d/repo.conf
 xbps-install -Syu -u xbps && xbps-install -Syu
-xbps-install -Syu base-system vim git terminus-font zsh zsh-syntax-highlighting zsh-autosuggestions NetworkManager
+xbps-install -Syu base-system vim git curl terminus-font zsh zsh-syntax-highlighting zsh-autosuggestions NetworkManager
 xbps-remove base-voidstrap -y
 
 
