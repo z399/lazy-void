@@ -30,7 +30,7 @@ echo -e '\n'
 
 dd if=/dev/zero of=/swapfile bs=1G count=${SWPFILE} status=progress
 chmod 600 /swapfile
-mkswap -U clear /swapfile
+mkswap /swapfile
 swapon /swapfile
 
 mkdir -p /etc/xbps.d
