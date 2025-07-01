@@ -38,7 +38,7 @@ mount /dev/$HOME /mnt/home
 
 
 SYS_GRD() {
-curl https://mirrors.dotsrc.org/voidlinux/live/current/void-x86_64-ROOTFS-20230628.tar.xz > void-x86_64-ROOTFS-20230628.tar.xz
+curl https://mirrors.dotsrc.org/voidlinux/live/current/void-x86_64-ROOTFS-20250202.tar.xz > void-x86_64-ROOTFS-20250202.tar.xz 
 tar xvf void-x86_64-ROOTFS-20230628.tar.xz -C /mnt
 mount --rbind /sys /mnt/sys && mount --make-rslave /mnt/sys
 mount --rbind /dev /mnt/dev && mount --make-rslave /mnt/dev
